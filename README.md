@@ -1,6 +1,8 @@
 # KANNABOTZ
-
-Simple WhatsApp Bot
+ [![Kanna](https://telegra.ph/file/8c0c0d33c6129af67e9c1.jpg)
+ 
+Simple WhatsApp Bot.   |    By Letta
+     |      [KannaBotz Whatsapp](wa.me/6283143393763)
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/kannachann/kanna-wabot)
 
@@ -13,7 +15,7 @@ apt install nodejs -y
 apt install ffmpeg -y
 apt install imagemagick -y
 git clone https://github.com/Kannachan/kanna-wabot
-cd wabot-aq
+cd kanna-wabot
 npm install
 npm update
 ```
@@ -29,7 +31,7 @@ npm update
 
 ```bash
 git clone https://github.com/kannachann/kanna-wabot
-cd wabot-aq
+cd kanna-wabot
 npm install
 npm update
 ```
@@ -140,9 +142,11 @@ conn.logger.level = 'debug'
 ---------
 
 <a href="https://api.xteam.xyz"><img src="https://i.ibb.co/7j0vtwz/xlogo.png" width="100" height="100"></a> | [![Nurutomo](https://github.com/Nurutomo.png?size=100)](https://github.com/Nurutomo) | [![Ariffb](https://github.com/ariffb25.png?size=100)](https://github.com/ariffb25) | [![Ftwrr](https://github.com/Ftwrr.png?size=100)](https://github.com/Ftwrr) 
-----|----|----|----
+[![Kanna](https://github.com/Kannachann.png?size=100)](https://wa.me/6283143393763) 
+
+
 [XTEAM](https://api.xteam.xyz/) | [Nurutomo](https://github.com/Nurutomo) | [Ariffb](https://github.com/ariffb25) | [Ftwrr](https://github.com/Ftwrr)
-Powered by XTEAM | Author / Creator | Most Active Contributor | 2nd Most Active Contributor
+Powered by XTEAM | Author / Creator | Most Active Contributor | Kannachann | 2nd Most Active Contributor
 
 
 NOTE: Jangan Lupa kasih star !
