@@ -29,9 +29,11 @@ module.exports = {
         let user = global.db.data.users[m.sender]
         if (typeof user !== 'object') global.db.data.users[m.sender] = {}
         if (user) {
-            if (!isNumber(user.healt)) user.healt = 0
+            if (!isNumber(user.healt)) user.healt = 100
             if (!isNumber(user.title)) user.title = 0
-            if (!isNumber(user.stamina)) user.stamina = 0
+            if (!isNumber(user.stamina)) user.stamina = 100
+            if (!isNumber(user.haus)) user.haus = 100
+            if (!isNumber(user.laper)) user.laper = 100
             if (!isNumber(user.level)) user.level = 0
             if (!('pasangan' in user)) user.pasangan = ''
             if (!isNumber(user.exp)) user.exp = 0
@@ -94,6 +96,7 @@ module.exports = {
             if (!isNumber(user.pickaxedurability)) user.pickaxedurability = 0
             if (!isNumber(user.fishingrod)) user.fishingrod = 0
             if (!isNumber(user.fishingroddurability)) user.fishingroddurability = 0
+            if (!isNumber(user.umpan)) user.umpan = 0
             
             if (!isNumber(user.kucing)) user.kucing = 0
             if (!isNumber(user.kucinglastclaim)) user.kucinglastclaim = 0
@@ -210,6 +213,8 @@ module.exports = {
             if (!isNumber(user.lastweekly)) user.lastweekly = 0
             if (!isNumber(user.lastmonthly)) user.lastmontly = 0
             if (!isNumber(user.lastIstigfar)) user.lastIstigfar = 0
+            if (!isNumber(user.lastturu)) user.lastturu = 0
+            if (!isNumber(user.lastseen)) user.lastseen = 0
             if (!isNumber(user.lastbansos)) user.lastbansos = 0
             if (!isNumber(user.lastrampok)) user.lastrampok = 0
             if (!('registered' in user)) user.registered = false
@@ -242,12 +247,15 @@ module.exports = {
             if (!user.job) user.job = 'Pengangguran'
             if (!user.lbars) user.lbars = '[▒▒▒▒▒▒▒▒▒]'
             if (!user.premium) user.premium = false
+            if (!user.premium) user.premiumTime= 0
             if (!user.role) user.role = 'Newbie ㋡'
             if (!('autolevelup' in user)) user.autolevelup = true
-            if (!('lastIstugfar' in user)) user.lastIstigfar = true
+            if (!('lastIstigfar' in user)) user.lastIstigfar = true
         } else global.db.data.users[m.sender] = {
             healt: 100,
             title: '',
+            haus: 100,
+            laper: 100,
             tprem: 0,
             stamina : 100,
             level: 0,
@@ -356,6 +364,7 @@ module.exports = {
             kayu: 0,
             batu: 0,
             string: 0,
+            umpan: 0,
             sword: 0,
             sworddurability: 0,
             pickaxe: 0,
@@ -377,6 +386,8 @@ module.exports = {
             lastngojek: 0,
             lastgrab: 0,
             lastngocok: 0,
+            lastturu: 0,
+            lastseen: 0,
             lastSetStatus: 0,
             registered: false,
             apel: 20,
@@ -389,6 +400,7 @@ module.exports = {
             age: -1,
             regTime: -1,
             premium: false, 
+            premiumTime: 0,
             job: 'Pengangguran', 
             lbars: '[▒▒▒▒▒▒▒▒▒]', 
             role: 'Newbie ㋡', 
@@ -498,7 +510,7 @@ module.exports = {
       let isROwner = [global.conn.user.jid, ...global.owner].map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
       let isOwner = isROwner || m.fromMe
       let isMods = isOwner || global.mods.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
-      let isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, '') + '@s.whatsapp.net').includes(m.sender)
+      let isPrems = isROwner || db.data.users[m.sender].premium
       let groupMetadata = m.isGroup ? this.chats.get(m.chat).metadata || await this.groupMetadata(m.chat) : {} || {}
       let participants = m.isGroup ? groupMetadata.participants : [] || []
       let user = m.isGroup ? participants.find(u => u.jid == m.sender) : {} // User Data
@@ -615,11 +627,11 @@ module.exports = {
           if (xp > 200) m.reply('Ngecit -_-') // Hehehe
           else m.exp += xp
           if (!isPrems && plugin.limit && global.db.data.users[m.sender].limit < plugin.limit * 1) {
-            this.reply(m.chat, `Limit anda habis, silahkan beli melalui *${usedPrefix}buy*`, m)
+            this.reply(m.chat, `✖️ Limit anda habis, silahkan beli melalui *${usedPrefix}blimit*`, m)
             continue // Limit habis
           }
           if (plugin.level > _user.level) {
-            this.reply(m.chat, `diperlukan level ${plugin.level} untuk menggunakan perintah ini. Level kamu ${_user.level}`, m)
+            this.reply(m.chat, `[❗] Diperlukan level ${plugin.level} untuk menggunakan perintah ini\n📊 *Level kamu:* ${_user.level}`, m)
             continue // If the level has not been reached
           }
           let extra = {
@@ -665,7 +677,7 @@ module.exports = {
                 console.error(e)
               }
             }
-            if (m.limit) m.reply(+ m.limit + ' Limit terpakai')
+            if (m.limit) m.reply(+ m.limit + ' Limit terpakai ✔️')
           }
           break
         }
@@ -708,7 +720,7 @@ module.exports = {
       } catch (e) {
         console.log(m, m.quoted, e)
       }
-    //  if (opts['autoread']) await this.chatRead(m.chat).catch(() => { })
+    if (opts['autoread']) await this.chatRead(m.chat).catch(() => { })
     this.chatRead(m.chat).catch(() => { })
     }
   },
@@ -733,11 +745,27 @@ module.exports = {
 
               let lea = await (await fetch(fla + `GOOD BYE`)).buffer()
 
-              conn.send2ButtonLoc(jid, action === 'add' ? wel : lea, text, action === 'add' ? '*WELCOME TO GROUP ✨*' : '*YEY NASI KOTAK 😈*', '⋮☰ Menu', '#menu', 'Info Grup', '.infogc', false, {
-                contextInfo: {
-                  mentionedJid: [user]
-                }
-              })
+await conn.sendMessage(jid, { "contentText": action === 'add' ? '──────────[ *WELCOME* ]──────────' : '──────────[ *GOOD BYE* ]──────────' , "footerText": text,
+"buttons": [
+{buttonId: '.menu', buttonText: {displayText: '⋮☰ Menu'}, type: 1},
+{buttonId: '.infogc', buttonText: {displayText: 'Info Group'}, type: 1},
+{buttonId: '.rules', buttonText: {displayText: 'Rules Bot'}, type: 1}
+],
+"headerType": "DOCUMENT", "documentMessage": {
+            "url": "https://mmg.whatsapp.net/d/f/AsO5KpESy9E0WI72xEVp65rx505bQxvuIma79L8Ue076.enc",
+            "mimetype": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "title": "ness.docx",
+            "fileSha256": "8Xfe3NQDhjwVjR54tkkShLDGrIFKR9QT5EsthPyxDCI=",
+            "fileLength": "99999999999999",
+            "pageCount": 100,
+            "mediaKey": "XWv4hcnpGY51qEVSO9+e+q6LYqPR3DbtT4iqS9yKhkI=",
+            "fileName": 'Creαted by : ℓettα - sαmα ♡',
+            "fileEncSha256": "NI9ykWUcXKquea4BmH7GgzhMb3pAeqqwE+MTFbH/Wk8=",
+            "directPath": "/v/t62.7118-24/35150115_287008086621545_8250021012380583765_n.enc?ccb=11-4&oh=6f0f730e5224c054969c276a6276a920&oe=61A21F46",
+            "mediaKeyTimestamp": "1634472176",
+            "jpegThumbnail": await (await fetch('https://telegra.ph/file/6e45318d7c76f57e4a8bd.jpg')).buffer(),
+  }}, 'buttonsMessage', { quoted: false, contextInfo: { mentionedJid: [user], forwardingScore: 999, isForwarded: true, externalAdReply: { title: global.wm, body: action === 'add' ? 'Selamat Datang Kak!' : 'Yahh.. kok keluar :‹', description: action === 'add' ? 'Selamat Datang Kak!' : 'Yahh.. kok keluar :‹', mediaType: 2, thumbnail: action === 'add' ? wel : lea, mediaUrl: `https://youtube.com/watch?v=uIedYGN3NQQ`}}})
+              
             }
           }
         }
@@ -795,28 +823,41 @@ klick untuk mematikannya atau ketik #disable delete
 
 global.dfail = (type, m, conn) => {
 
+let wm = global.botwm
+	let botdate = global.botdate
+	let syappa = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
+	let namae = conn.getName(syappa)
 let usr = db.data.users[m.sender]
 let who = m.mentionedJid && m.mentionedJid[0] ? m.mentionedJid[0] : m.fromMe ? conn.user.jid : m.sender
 let user = conn.getName(who)
   let msg = {
-    rowner: '[ ! ] Creator Only',
-    owner: '[ ! ] Owner Only',
-    mods: '[ ! ] Moderator Only',
-    premium: '[ ! ] Premium Only',
-    group: '[ ! ] Group Only',
-    private: '[ ! ] Private Only',
-    admin: '[ ! ] Admin Group Only',
-    nsfw: '[ ! ] Nsfw Not Active',
-    botAdmin: '[ ! ] Bot Admin Only',
-    unreg: `*── 「 NOT REGISTERED 」 ──*
+    rowner: '[❗] Creator Only',
+    owner: '[❗] Owner Only',
+    mods: '[❗] Moderator Only',
+    premium: '[❗] Premium Only',
+    group: '[❗] Group Only',
+    private: '[❗] Private Only',
+    admin: '[❗] Admin Group Only',
+    nsfw: '[❗] Nsfw Not Active',
+    botAdmin: '[❗] Bot Admin Only'
+    /*unreg: `*── 「 NOT REGISTERED 」 ──*
 Halo @${m.sender.split`@`[0]} !
 Yuk Daftar Dulu Karena Anda Belum Terdaftar Dalam Database Bot
     
 📍 Ketik : #daftar nama.umur
-▸ Contoh : #daftar ${user}.13`
+▸ Contoh : #daftar ${user}.13`*/
   }[type]
-  let pd = fs.readFileSync('./src/kanna.jpg')
   if (msg) return m.reply(msg)
+  
+  let msgg = {
+  unreg: `*── 「 NOT REGISTERED 」 ──*
+Halo kak @${syappa.replace(/@.+/, '')} !
+Yuk Daftar Dulu Karena Anda Belum Terdaftar Dalam Database Bot 🗂️
+    
+📍 *Ketik :* #daftar nama.umur
+⤿ *Contoh :* #daftar ${namae}.13`
+}[type]
+  if (msgg) return conn.sendButton(m.chat, msgg, botdate + '\n' + global.wm, 'Verify', `.daftar ${namae}.18`, m, { contextInfo: { mentionedJid: [syappa] }})
 }
 
 let file = require.resolve(__filename)
