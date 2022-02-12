@@ -1,22 +1,22 @@
-let fs = require('fs')
-let handler = async (m, { conn, text }) => {
-
-    const json = JSON.parse(fs.readFileSync('./src/premium.json'))
+let handler = async (m, { conn, text, usedPrefix, command }) => {
     let who
-    if (m.isGroup) who = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : text.replace(/[^0-9]/g, '') + '@s.whatsapp.net'
-    else who = text ? text.replace(/[^0-9]/g, '') + '@s.whatsapp.net' : m.chat
-    if (json.includes(who.split`@`[0])) throw `${conn.getName(who)} sudah premium!`
-    json.push(`${who.split`@`[0]}`)
-    fs.writeFileSync('./src/premium.json', JSON.stringify(json))
-    m.reply(`${conn.getName(who)} sekarang premium!`)
-
-    delete require.cache[require.resolve('../config')]
-    require('../config')
-
+    if (m.isGroup) who = m.mentionedJid[0] ? m.mentionedJid[0] : m.quoted ? m.quoted.sender : false
+    else who = m.chat
+    let user = db.data.users[who]
+    if (!who) throw `tag or mention someone!`
+    let txt = text.replace('@' + who.split`@`[0], '').trim()
+    if (!txt) throw `where the number of days?`
+    if (isNaN(txt)) return m.reply(`only number!\n\nexample:\n${usedPrefix + command} @${m.sender.split`@`[0]} 7`)
+    var jumlahHari = 86400000 * txt
+    var now = new Date() * 1
+    if (now < user.premiumTime) user.premiumTime += jumlahHari
+    else user.premiumTime = now + jumlahHari
+    user.premium = true
+    m.reply(`✔️ Success\n📛 *Name:* ${user.name}\n📆 *Days:* ${txt} days\n📉 *Countdown:* ${user.premiumTime - now}`)
 }
-handler.help = ['addprem [@user]']
+handler.help = ['addprem [@user] <amount of days>']
 handler.tags = ['owner']
-handler.command = /^(add|tambah|\+)prem$/i
+handler.command = /^(add|tambah|\+)p(rem)?$/i
 
 handler.owner = true
 
